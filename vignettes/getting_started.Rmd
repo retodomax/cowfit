@@ -1,0 +1,34 @@
+---
+project: cowfit    #####################################################
+title:   Getting started with cowfit
+author:  Reto Zihlmann <retozihlmann@outlook.com>
+date:    2020-07-04 22:22:22
+output:  github_document   #############################################
+---
+
+
+## Install and Load Package
+
+
+## Prepare Data and Pedigree
+
+
+## Use `lme4` to get first impression of your data
+
+
+## Fit LMMs
+
+- Think about model (fixed effects, random effects)
+- Fit small subpopulation with cowfit_glmer()
+- Insert variance components in order of cowfit_var_comp()
+- cowfit_glmer() on full population with given var_comp
+    - Too slow? Trhy with nAGQ = 0
+    - Only approximate beta
+    - Much faster
+- Check residuals plot
+- improve model
+- Cross validation of Breeding values
+- heritability
+
+
+## Fit GLMMs

@@ -1,0 +1,18 @@
+Package: cowfit
+Type: Package
+Title: LMMs and GLMMs in genetic evaluation
+Version: 0.1.0
+Date: 2020-07-04
+Author: Reto Zihlmann
+Maintainer: Reto Zihlmann <retozihlmann@outlook.com>
+Description: This package extends the functionality of the package pedigreemm and contains the following improvements
+    (1) Resolves a critical bug in the prediction of random effects
+    (2) Allows for animal models with single observations
+    (3) Allows for random regression models
+    (4) Allows to prespecify the variance components for faster estimation of random effects
+License: GPL (>= 2)
+Encoding: UTF-8
+LazyData: true
+URL: https://github.com/retodomax/pedigreemm
+Depends: R(>= 3.0.0), lme4 (>= 1.0), Matrix (>= 1.0), methods, pedigreemm (>= 0.3-3)
+RoxygenNote: 7.1.0
