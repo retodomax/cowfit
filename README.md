@@ -11,7 +11,7 @@ This package extends the functionality of the package `pedigreemm` and contains 
 
 Install the package `devtools` (with `install.packages("devtools")`) and run the following line of code
 ```
-library("devtools"); install_github("retodomax/cowfit", dependencies=TRUE)
+devtools::install_github("retodomax/cowfit", dependencies=TRUE)
 ```
 
 ## Documentation
