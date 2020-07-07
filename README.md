@@ -16,6 +16,5 @@ library("devtools"); install_github("retodomax/cowfit", dependencies=TRUE)
 
 ## Documentation
 
-* [Getting started with cowfit](https://github.com/retodomax/cowfit/blob/master/vignettes/getting_started.html)
+* [Getting started with cowfit](https://retodomax.github.io/cowfit/getting_started)
 * [Theory]
-* [Master Thesis]
