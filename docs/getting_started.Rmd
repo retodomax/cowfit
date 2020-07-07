@@ -1,0 +1,246 @@
+---
+project: cowfit    #####################################################
+title:   Getting Started with Cowfit
+author:  Reto Zihlmann
+date:    2020-07-06
+output:
+  BiocStyle::html_document:
+    toc_float: true
+---
+
+```{r, setup, include=FALSE}
+knitr::opts_chunk$set(comment = "",
+                      # tidy = TRUE,
+                      fig.align = "left",
+                      out.width = "80%",
+                      echo = TRUE,
+                      warning = FALSE,
+                      message = FALSE,
+                      error = FALSE,
+                      cache = TRUE)
+```
+
+# Install and Load Package {-}
+
+Install the package `devtools` (with `install.packages("devtools")`) and run the following line of code
+
+```r
+devtools::install_github("retodomax/cowfit", dependencies=TRUE)
+```
+
+Load the package with
+
+```{r, loadpackge, cache=FALSE}
+library("cowfit")
+```
+
+
+# General Procedure {-}
+
+
+## Prepare Data and Pedigree {-}
+
+Your data has to be organized in two objects
+
+1. **pedigree** Store the pedigree in an object of class `pedigree` from package `pedigreemm`. Type `?pedigreemm::pedigree` for more information of how construct an object of class `pedigree`.
+2. **data table** Store the observations together with predictor variables as columns in a `data.frame`. Make sure to define the desired data type for each column (numeric, factor, ...).
+
+
+## Get First Impression of your Data {-}
+
+* Think about model
+    - Which variables might have a possible effect on the target variable?
+    - Should a predictor be considered as fixed or random?
+    - Do we have enoght data to fit all kinds of interactions?
+* Try different models with `lme4` 
+    - Fitting a model is much faster with `lme4` compared to `cowfit`.
+    - A first impression of which predictors might be relevant can be obtained with using `lme4`.
+    - Note that not all models which can be fitted with `cowfit` are allowed with `lme4` (animal model with single observations).
+
+
+## Estimate Model {-}
+
+* One step approach
+    - Fit full model and estimate variance components
+    - Best option for small data sets with not so many grouping factor levels (sire model)
+* Two Step approach
+    - First step: estimate variance components with a small subset of your data
+    - Second step: Fit entire data set using estimated variance components
+    - Best option for large data sets with many grouping factor levels (animal model)
+
+
+## Model Selection {-}
+
+* Estimate different models using the one step or the two step approach
+* Compare different models (`anova()`, `AIC()`, Cross validation, ...)
+* Choose best model
+
+
+## Predict Breeding Values {-}
+
+* Use final model to predict breeding values
+
+
+# Example 1: LMM, small data set, sire model {-}
+
+The data set `sim_milk` contains `r nrow(sim_milk)` observed milk yields from `r length(unique(sim_milk$animal))` animals. They are descendants from `r length(unique(sim_milk$sire))` sires for which we want to predict breeding values. Our goal is to select for animals which have a higher milk yield under high-protein feeding.
+
+We start fitting models of increasing complexity without considering the correlation of the random effects.
+
+```{r, fitLmerEx1}
+fit1 <- lmer(formula = y ~ (1|sire),
+             data = sim_milk)
+fit2 <- lmer(formula = y ~ protein + (1|sire),
+             data = sim_milk)
+fit3 <- lmer(formula = y ~ protein + (1|sire) + (1|herd),
+             data = sim_milk)
+fit4 <- lmer(formula = y ~ protein + (1|sire) + (protein|herd),
+             data = sim_milk)
+fit5 <- lmer(formula = y ~ protein + (protein|sire) + (1|herd),
+             data = sim_milk)
+```
+
+Models with (protein|sire) + (protein|herd) will end up being singular and are therefore not considered. Next we do hierarchical model comparison with `anova`.
+
+```{r, anovaEx1}
+anova(fit1, fit2, fit3, fit4, fit5)
+```
+
+The additional parameters in the most complex model (fit5) seem to have a significant effect on the target variable. In the next step we refit the last two models and include the correlation structure due to the pedigree. We can fit the model with the one step approach because this is a rather small example.
+
+```{r, fitcowfitEx1, cache=TRUE}
+fit6 <- cowfit_lmer(formula = y ~ protein + (1|sire) + (protein|herd),
+                    data = sim_milk, pedigree = list(sire = pedSires),
+                    cowfit_verbose = FALSE)
+
+fit7 <- cowfit_lmer(formula = y ~ protein + (protein|sire) + (1|herd),
+                    data = sim_milk, pedigree = list(sire = pedSires),
+                    cowfit_verbose = FALSE)
+anova(fit6, fit7)
+```
+
+Again, we observe that `fit6` is better also with considering the correlation structure in the random effects.
+
+Finally we use the function `ranef()` to extract the random effects of the sires (aka breeding values). Each sire will have two breeding values. The random intercept breeding value is defined as two times the deviation from the population mean of an average offspring at low protein level. The random slope breeding value is associated with the expected effect on higher protein levels
+
+```{r, ranefEx1}
+re <- ranef(fit7)
+bv <- re$sire
+plot(1, xlim = c(0, 5), ylim = c(-150, 150),
+     xlab = "protein", ylab = "effect on milk yield",
+     type = "n")
+z <- apply(bv, 1, function(x) abline(a = x[1], b = x[2]))
+bv$eff_prot5 <- bv$`(Intercept)` + bv$protein*5
+ind <- which(bv$eff_prot5 > 130)
+rownames(bv[ind,])
+z <- apply(bv[ind,], 1, function(x) abline(a = x[1], b = x[2],
+                                           col = "red"))
+```
+
+We should select the animal 321 and 324 (red lines) if we select animals which perform better with high protein feedstuff.
+
+
+# Example 2: LMM, large data set, animal model {-}
+
+Next we consider problems where we want to fit an animal model with a larger pedigree. This implies a large number of random effects which makes the estimation computationally difficult. We use the two step approach in order to fit the model in reasonable time. The data set `sim_fat` and pedigree `pedCows` are still relatively small, however, the techniques we are using also apply to larger problems. As before, we start fitting the whole data set without considering the correlation of the random effects.
+
+```{r}
+fit1 <- lmer(formula = y ~ (1|animal),
+             data = sim_fat)
+fit2 <- lmer(formula = y ~ lact + (1|animal),
+             data = sim_fat)
+fit3 <- lmer(formula = y ~ (1|animal) + (1|herd),
+             data = sim_fat)
+anova(fit1, fit2, fit3)
+```
+
+We choose the first model and fit the model to a small subset of the data and pedigree.
+
+```{r, eval=FALSE}
+## Maybe use subPed() ??
+library(optiSel)
+myp <- subPed(Pedig = data.frame(ID = pedCows@label, Sire = pedCows@sire, Dam = pedCows@dam),
+              keep = "2000", prevGen = 0, succGen = 10)
+## However we need less random effects and more observations (ideally)
+## How can we sample to have MANY observations and LESS random effects?
+
+## 2. Option
+## Use ANIMAL model
+# BUT: are variance components of animal model the same?
+# In my opinion variance components are 0.25 times variance components of animal model
+# (effect is only halfe the effect in animal model)
+```
+
+
+
+
+# Example 3: GLMM, small data set, sire model {-}
+
+Let's try an example where our target variable is not continuous but a binary. Assume we want to have less multiple birth events in a population of animals because multiple births are associated with complications. We do not care about the exact number of offspring therefore we just model a binary trait, multiple birth true or false. We also expect an influence of predictor variable `lact` on the probability for multiple birth. The data is stored in data frame `sim_twin` and `pedSires` is the associated pedigree of the sires.
+
+We start by fitting models with increasing complexity with the function `glmer()`
+
+```{r}
+fit1 <- glmer(formula = y ~ (1|sire),
+              data = sim_twin, family = "binomial")
+fit2 <- glmer(formula = y ~ lact + (1|sire),
+              data = sim_twin, family = "binomial")
+fit3 <- glmer(formula = y ~ lact + (1|sire) + (1|herd),
+              data = sim_twin, family = "binomial")
+fit4 <- glmer(formula = y ~ lact + (1|sire) + (lact|herd),
+              data = sim_twin, family = "binomial")
+fit5 <- glmer(formula = y ~ lact + (lact|sire) + (1|herd),
+              data = sim_twin, family = "binomial")
+fit6 <- glmer(formula = y ~ lact + (lact|sire),
+              data = sim_twin, family = "binomial")
+anova(fit1, fit2, fit3, fit4, fit5, fit6)
+```
+
+Model\ 5 and 6 are very close according to `AIC`.
+
+```{r}
+anova(fit6, fit5)
+```
+
+The additional parameters of model\ 5 do not have a significant effect, which is why we prefer the simpler model. Fitting this model with `cowfit_glmer()` already takes some seconds but is still possible without prespecified variance components.
+
+```{r}
+system.time(fit7 <- cowfit_glmer(formula = y ~ lact + (lact|sire)
+                                 , data = sim_twin, family = "binomial"
+                                 , pedigree = list(sire = pedSires)
+                                 , cowfit_verbose = FALSE))
+```
+
+Our goal is to exclude all sires which inherit a breeding value associated with probability > 0.5 for twins at third lactation.
+
+```{r}
+re <- ranef(fit7)
+bv <- re$sire
+bv$sire <- rownames(bv)
+betas <- fixef(fit7)
+bv$lin_pred <- betas[1] + betas[2]*3 + bv$`(Intercept)` + bv$lact*3
+bv$p <- inv_logit(bv$lin_pred)
+bv$sire[which(bv$p > 0.5)]
+```
+
+Note that we have to calculate the linear predictor manually. Using `predict()` will be wrong because it does use the random effects on a transformed scale.
+
+
+
+# Example 4: GLMM, large data set, animal model {-}
+
+
+
+<!-- - Think about model (fixed effects, random effects) -->
+<!-- - Fit small subpopulation with cowfit_glmer() -->
+<!-- - Insert variance components in order of cowfit_var_comp() -->
+<!-- - cowfit_glmer() on full population with given var_comp -->
+<!--     - Too slow? Trhy with nAGQ = 0 -->
+<!--     - Only approximate beta -->
+<!--     - Much faster -->
+<!-- - Check residuals plot -->
+<!-- - improve model -->
+<!-- - Cross validation of Breeding values -->
+<!-- - heritability -->
+
+

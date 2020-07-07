@@ -257,7 +257,7 @@ get_TAt <- function(lmod, pedigree) {
 #' @param mcout Call which led to the output (\code{\link[base:match.call]{match.call}})
 #' @return Fitted model of class \code{\link[lme4:merMod-class]{merMod}}
 #' @author Reto Zihlmann
-#' @seealso \code{\link{lme4:modular}[mkLmerDevfun]}, \code{\link{cowfit_var_comp}},
+#' @seealso \code{\link[lme4:modular]{mkLmerDevfun}}, \code{\link{cowfit_var_comp}},
 #'     \code{\link[lme4:lFormula]{lFormula}}, \code{\link[lme4:merMod-class]{merMod}}
 #' @examples
 #' lmod <- lFormula(formula = Reaction ~ Days + (Days | Subject),
@@ -356,7 +356,7 @@ cowfit_lmer <- function(formula, data = NULL, pedigree = list(),
   mc$pedigree <- NULL
   mc$var_comp <- NULL
   mc$exact_var_comp <- NULL
-  mc$cowfit_verbous <- NULL
+  mc$cowfit_verbose <- NULL
   control$checkControl$check.nobs.vs.nlev <- "ignore"  # allows for animal model
   control$checkControl$check.nobs.vs.nRE <- "ignore"
   mc$control <- control
@@ -364,7 +364,7 @@ cowfit_lmer <- function(formula, data = NULL, pedigree = list(),
             all(sapply(pedigree, is, class2 = "pedigree")))
 
   ## 1. Module: lFormula
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 1: Model formula\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 1: Model formula\n")}
   lmod <- eval(mc, parent.frame(1L))
   mcout$formula <- lmod$formula
   lmod$formula <- NULL
@@ -381,13 +381,13 @@ cowfit_lmer <- function(formula, data = NULL, pedigree = list(),
 
 
   ## 2. Module: mkLmerDevfun
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 2: Get deviance function\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 2: Get deviance function\n")}
   devfun <- do.call(mkLmerDevfun, c(lmod, list(start = start,
                                                verbose = verbose, control = control)))
 
 
   ## 3. Module: optimizeLmer + mkMerMod
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 3: Optimize deviance\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 3: Optimize deviance\n")}
 
   if (devFunOnly)
     return(devfun)
@@ -421,14 +421,14 @@ cowfit_lmer <- function(formula, data = NULL, pedigree = list(),
   }
 
   ## 4. Module: create output
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 4: Return output\n\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 4: Return output\n\n")}
   mm <- do.call(new, list(Class = "lmercowfit", TAt = TAt, resp = mm@resp, Gp = mm@Gp,
                           frame = mm@frame, flist = mm@flist, cnms = mm@cnms,
                           lower = mm@lower, theta = mm@theta,
                           beta = mm@beta, u = mm@u, devcomp = mm@devcomp,
                           pp = mm@pp, optinfo = mm@optinfo))
   mm@call <- evalq(mcout)
-  if(cowfit_verbous) {print_cow()}
+  if(cowfit_verbose) {print_cow()}
   mm
 }
 
@@ -574,7 +574,7 @@ setMethod("ranef", signature(object = "cowfit"),
 cowfit_glmer <- function(formula, data = NULL, family = gaussian,
                          pedigree = list(),
                          var_comp = NULL,
-                         cowfit_verbous = TRUE,
+                         cowfit_verbose = TRUE,
                          control = glmerControl(),
                          start = NULL, verbose = 0L, nAGQ = 1L, subset, weights, na.action,
                          offset, contrasts = NULL, mustart, etastart, devFunOnly = FALSE) {
@@ -614,14 +614,14 @@ cowfit_glmer <- function(formula, data = NULL, family = gaussian,
   ## remove arguments unknown to lme4
   mc$pedigree <- NULL
   mc$var_comp <- NULL
-  mc$cowfit_verbous <- NULL
+  mc$cowfit_verbose <- NULL
   control$checkControl$check.nobs.vs.nlev <- "ignore"  # allows for animal model
   control$checkControl$check.nobs.vs.nRE <- "ignore"
   stopifnot(is.list(pedigree), length(names(pedigree)) == length(pedigree),
             all(sapply(pedigree, is, class2 = "pedigree")))
 
   ## 1. Module: lFormula
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 1: Model formula\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 1: Model formula\n")}
   glmod <- eval(mc, parent.frame(1L))
   if (!is.null(var_comp)){
     if ((length(glmod$reTrms$theta)+1) != length(var_comp)) {
@@ -639,12 +639,12 @@ cowfit_glmer <- function(formula, data = NULL, family = gaussian,
   glmod$reTrms$Zt <- TAt %*% glmod$reTrms$Zt
 
   ## 2. Module: mkLmerDevfun
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 2: Get deviance function\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 2: Get deviance function\n")}
   devfun <- do.call(mkGlmerDevfun, c(glmod, list(verbose = verbose,
                                                  control = control, nAGQ = nAGQinit)))
 
   ## 3. Module: optimizeGlmer + mkMerMod
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 3: Optimize deviance\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 3: Optimize deviance\n")}
 
   if (nAGQ == 0 && devFunOnly)
     return(devfun)
@@ -742,14 +742,14 @@ cowfit_glmer <- function(formula, data = NULL, family = gaussian,
 
 
   ## 4. Module: create output...
-  if(cowfit_verbous) {cat(as.character(Sys.time()), "\t \t Starting module 4: Return output\n\n")}
+  if(cowfit_verbose) {cat(as.character(Sys.time()), "\t \t Starting module 4: Return output\n\n")}
   mm <- do.call(new, list(Class = "glmercowfit", TAt = TAt, resp = mm@resp, Gp = mm@Gp,
                           frame = mm@frame, flist = mm@flist, cnms = mm@cnms,
                           lower = mm@lower, theta = mm@theta,
                           beta = mm@beta, u = mm@u, devcomp = mm@devcomp,
                           pp = mm@pp, optinfo = mm@optinfo))
   mm@call <- evalq(mcout)
-  if(cowfit_verbous) {print_cow()}
+  if(cowfit_verbose) {print_cow()}
   mm
 }
 
@@ -926,7 +926,7 @@ test_cowfit_lmer <- function(formula = ~lact + (1|herd) + (lact|sire), data = mi
   ti <- system.time({
     fit <- cowfit_lmer(update(formula, y ~ .), data = mysim$data, pedigree = pedigree,
                        var_comp = var_comp, exact_var_comp = exact_var_comp,
-                       cowfit_verbous = TRUE, ...)
+                       cowfit_verbose = TRUE, ...)
   })
   if(!return_all){
     return(fit)
@@ -1089,7 +1089,7 @@ test_cowfit_glmer <- function(formula = ~lact + (1|herd) + (lact|sire), data = m
   }
   ti <- system.time({
     fit <- cowfit_glmer(update(formula, y ~ .), data = mysim$data, pedigree = pedigree, family = family,
-                        var_comp = var_comp, cowfit_verbous = TRUE, ...)
+                        var_comp = var_comp, cowfit_verbose = TRUE, ...)
   })
   if(!return_all){
     return(fit)

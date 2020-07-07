@@ -13,7 +13,7 @@ data(sim_milk)
 \description{
 Simulated milk yield in population of pedigree \code{\link[pedigreemm:pedSires]{pedSires}}.
 Example for LMMs. Simulation based on model \code{y ~ protein + (1|herd) + (protein|sire)} with
-\code{beta = c(6000, 200)} and \code{var_comp = 500  400  300 -200   50}
+\code{beta = c(6000, 200)} and \code{var_comp = c(500, 400, 300, -200, 50)}.
 }
 \examples{
 data(sim_milk)

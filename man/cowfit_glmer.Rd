@@ -10,7 +10,7 @@ cowfit_glmer(
   family = gaussian,
   pedigree = list(),
   var_comp = NULL,
-  cowfit_verbous = TRUE,
+  cowfit_verbose = TRUE,
   control = glmerControl(),
   start = NULL,
   verbose = 0L,
@@ -40,6 +40,9 @@ for random-effects terms in the formula argument.}
 \item{var_comp}{Ordered vector of variance components. Correct ordering can be
 obtained with \code{\link{cowfit_var_comp}}.}
 
+\item{cowfit_verbose}{Logical. Verbose output is generated showing which module
+of the function is currently active.}
+
 \item{control}{As in \code{\link[lme4:glmer]{glmer}}.}
 
 \item{start}{As in \code{\link[lme4:glmer]{glmer}}.}
@@ -63,9 +66,6 @@ obtained with \code{\link{cowfit_var_comp}}.}
 \item{etastart}{As in \code{\link[lme4:glmer]{glmer}}.}
 
 \item{devFunOnly}{As in \code{\link[lme4:glmer]{glmer}}.}
-
-\item{cowfit_verbose}{Logical. Verbose output is generated showing which module
-of the function is currently active.}
 }
 \value{
 Fitted object of class \code{\link[glmercowfit-class]{glmercowfit}}

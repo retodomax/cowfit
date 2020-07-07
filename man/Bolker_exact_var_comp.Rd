@@ -38,7 +38,7 @@ fit <- Bolker_exact_var_comp(devfun = devfun,
 as.data.frame(VarCorr(fit))
 }
 \seealso{
-\code{\link{lme4:modular}[mkLmerDevfun]}, \code{\link{cowfit_var_comp}},
+\code{\link[lme4:modular]{mkLmerDevfun}}, \code{\link{cowfit_var_comp}},
     \code{\link[lme4:lFormula]{lFormula}}, \code{\link[lme4:merMod-class]{merMod}}
 }
 \author{
