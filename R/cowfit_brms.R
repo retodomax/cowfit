@@ -1,16 +1,5 @@
 #### Import #############################################################
 
-## Here, instead of using '@import brms', we write directly into the
-## namespace because we need to exclude the function ngrps which would
-## result in a conflict with lme4
-
-#' @rawNamespace import(brms, except = ngrps)
-NULL
-
-validate_data2 <- utils::getFromNamespace("validate_data2", "brms")
-environment(validate_data2) <- asNamespace("cowfit")
-
-
 # We are going to import all (also internal) functions of brms.
 # If we would simply use '@import brms' only the exported functions
 # would be available but we need to access all of them
