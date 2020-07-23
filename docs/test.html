@@ -1,0 +1,599 @@
+<!DOCTYPE html>
+
+<html>
+
+<head>
+
+<meta charset="utf-8" />
+<meta name="generator" content="pandoc" />
+<meta http-equiv="X-UA-Compatible" content="IE=EDGE" />
+
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+
+<meta name="author" content="Reto Zihlmann" />
+
+<meta name="date" content="2020-07-06" />
+
+<title>Getting Started with Cowfit</title>
+
+<script>// Hide empty <a> tag within highlighted CodeBlock for screen reader accessibility (see https://github.com/jgm/pandoc/issues/6352#issuecomment-626106786) -->
+// v0.0.1
+// Written by JooYoung Seo (jooyoung@psu.edu) and Atsushi Yasumoto on June 1st, 2020.
+
+document.addEventListener('DOMContentLoaded', function() {
+  const codeList = document.getElementsByClassName("sourceCode");
+  for (var i = 0; i < codeList.length; i++) {
+    var linkList = codeList[i].getElementsByTagName('a');
+    for (var j = 0; j < linkList.length; j++) {
+      if (linkList[j].innerHTML === "") {
+        linkList[j].setAttribute('aria-hidden', 'true');
+      }
+    }
+  }
+});
+</script>
+
+
+<style type="text/css">code{white-space: pre;}</style>
+<style type="text/css" data-origin="pandoc">
+code.sourceCode > span { display: inline-block; line-height: 1.25; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode { white-space: pre; position: relative; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+code.sourceCode { white-space: pre-wrap; }
+code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+    color: #aaaaaa;
+  }
+pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+code span.at { color: #7d9029; } /* Attribute */
+code span.bn { color: #40a070; } /* BaseN */
+code span.bu { } /* BuiltIn */
+code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+code span.ch { color: #4070a0; } /* Char */
+code span.cn { color: #880000; } /* Constant */
+code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+code span.dt { color: #902000; } /* DataType */
+code span.dv { color: #40a070; } /* DecVal */
+code span.er { color: #ff0000; font-weight: bold; } /* Error */
+code span.ex { } /* Extension */
+code span.fl { color: #40a070; } /* Float */
+code span.fu { color: #06287e; } /* Function */
+code span.im { } /* Import */
+code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+code span.op { color: #666666; } /* Operator */
+code span.ot { color: #007020; } /* Other */
+code span.pp { color: #bc7a00; } /* Preprocessor */
+code span.sc { color: #4070a0; } /* SpecialChar */
+code span.ss { color: #bb6688; } /* SpecialString */
+code span.st { color: #4070a0; } /* String */
+code span.va { color: #19177c; } /* Variable */
+code span.vs { color: #4070a0; } /* VerbatimString */
+code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+
+</style>
+<script>
+// apply pandoc div.sourceCode style to pre.sourceCode instead
+(function() {
+  var sheets = document.styleSheets;
+  for (var i = 0; i < sheets.length; i++) {
+    if (sheets[i].ownerNode.dataset["origin"] !== "pandoc") continue;
+    try { var rules = sheets[i].cssRules; } catch (e) { continue; }
+    for (var j = 0; j < rules.length; j++) {
+      var rule = rules[j];
+      // check if there is a div.sourceCode rule
+      if (rule.type !== rule.STYLE_RULE || rule.selectorText !== "div.sourceCode") continue;
+      var style = rule.style.cssText;
+      // check if color or background-color is set
+      if (rule.style.color === '' && rule.style.backgroundColor === '') continue;
+      // replace div.sourceCode by a pre.sourceCode rule
+      sheets[i].deleteRule(j);
+      sheets[i].insertRule('pre.sourceCode{' + style + '}', j);
+    }
+  }
+})();
+</script>
+
+
+
+<style type="text/css">body {
+background-color: #fff;
+margin: 1em auto;
+max-width: 700px;
+overflow: visible;
+padding-left: 2em;
+padding-right: 2em;
+font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+font-size: 14px;
+line-height: 1.35;
+}
+#TOC {
+clear: both;
+margin: 0 0 10px 10px;
+padding: 4px;
+width: 400px;
+border: 1px solid #CCCCCC;
+border-radius: 5px;
+background-color: #f6f6f6;
+font-size: 13px;
+line-height: 1.3;
+}
+#TOC .toctitle {
+font-weight: bold;
+font-size: 15px;
+margin-left: 5px;
+}
+#TOC ul {
+padding-left: 40px;
+margin-left: -1.5em;
+margin-top: 5px;
+margin-bottom: 5px;
+}
+#TOC ul ul {
+margin-left: -2em;
+}
+#TOC li {
+line-height: 16px;
+}
+table {
+margin: 1em auto;
+border-width: 1px;
+border-color: #DDDDDD;
+border-style: outset;
+border-collapse: collapse;
+}
+table th {
+border-width: 2px;
+padding: 5px;
+border-style: inset;
+}
+table td {
+border-width: 1px;
+border-style: inset;
+line-height: 18px;
+padding: 5px 5px;
+}
+table, table th, table td {
+border-left-style: none;
+border-right-style: none;
+}
+table thead, table tr.even {
+background-color: #f7f7f7;
+}
+p {
+margin: 0.5em 0;
+}
+blockquote {
+background-color: #f6f6f6;
+padding: 0.25em 0.75em;
+}
+hr {
+border-style: solid;
+border: none;
+border-top: 1px solid #777;
+margin: 28px 0;
+}
+dl {
+margin-left: 0;
+}
+dl dd {
+margin-bottom: 13px;
+margin-left: 13px;
+}
+dl dt {
+font-weight: bold;
+}
+ul {
+margin-top: 0;
+}
+ul li {
+list-style: circle outside;
+}
+ul ul {
+margin-bottom: 0;
+}
+pre, code {
+background-color: #f7f7f7;
+border-radius: 3px;
+color: #333;
+white-space: pre-wrap; 
+}
+pre {
+border-radius: 3px;
+margin: 5px 0px 10px 0px;
+padding: 10px;
+}
+pre:not([class]) {
+background-color: #f7f7f7;
+}
+code {
+font-family: Consolas, Monaco, 'Courier New', monospace;
+font-size: 85%;
+}
+p > code, li > code {
+padding: 2px 0px;
+}
+div.figure {
+text-align: center;
+}
+img {
+background-color: #FFFFFF;
+padding: 2px;
+border: 1px solid #DDDDDD;
+border-radius: 3px;
+border: 1px solid #CCCCCC;
+margin: 0 5px;
+}
+h1 {
+margin-top: 0;
+font-size: 35px;
+line-height: 40px;
+}
+h2 {
+border-bottom: 4px solid #f7f7f7;
+padding-top: 10px;
+padding-bottom: 2px;
+font-size: 145%;
+}
+h3 {
+border-bottom: 2px solid #f7f7f7;
+padding-top: 10px;
+font-size: 120%;
+}
+h4 {
+border-bottom: 1px solid #f7f7f7;
+margin-left: 8px;
+font-size: 105%;
+}
+h5, h6 {
+border-bottom: 1px solid #ccc;
+font-size: 105%;
+}
+a {
+color: #0033dd;
+text-decoration: none;
+}
+a:hover {
+color: #6666ff; }
+a:visited {
+color: #800080; }
+a:visited:hover {
+color: #BB00BB; }
+a[href^="http:"] {
+text-decoration: underline; }
+a[href^="https:"] {
+text-decoration: underline; }
+
+code > span.kw { color: #555; font-weight: bold; } 
+code > span.dt { color: #902000; } 
+code > span.dv { color: #40a070; } 
+code > span.bn { color: #d14; } 
+code > span.fl { color: #d14; } 
+code > span.ch { color: #d14; } 
+code > span.st { color: #d14; } 
+code > span.co { color: #888888; font-style: italic; } 
+code > span.ot { color: #007020; } 
+code > span.al { color: #ff0000; font-weight: bold; } 
+code > span.fu { color: #900; font-weight: bold; } 
+code > span.er { color: #a61717; background-color: #e3d2d2; } 
+</style>
+
+
+
+
+</head>
+
+<body>
+
+
+
+
+<h1 class="title toc-ignore">Getting Started with Cowfit</h1>
+<h4 class="author">Reto Zihlmann</h4>
+<h4 class="date">2020-07-06</h4>
+
+
+<div id="TOC">
+<ul>
+<li><a href="#install-and-load-package">Install and Load Package</a></li>
+<li><a href="#general-procedure">General Procedure</a><ul>
+<li><a href="#prepare-data-and-pedigree">Prepare Data and Pedigree</a></li>
+<li><a href="#get-first-impression-of-your-data">Get First Impression of your Data</a></li>
+<li><a href="#estimate-model">Estimate Model</a></li>
+<li><a href="#model-selection">Model Selection</a></li>
+<li><a href="#predict-breeding-values">Predict Breeding Values</a></li>
+</ul></li>
+<li><a href="#example-1-lmm-small-data-set-sire-model">Example 1: LMM, small data set, sire model</a></li>
+<li><a href="#example-2-lmm-large-data-set-animal-model">Example 2: LMM, large data set, animal model</a></li>
+<li><a href="#example-3-glmm-small-data-set-sire-model">Example 3: GLMM, small data set, sire model</a></li>
+<li><a href="#example-4-glmm-large-data-set-animal-model">Example 4: GLMM, large data set, animal model</a></li>
+</ul>
+</div>
+
+<div id="install-and-load-package" class="section level1 unnumbered">
+<h1>Install and Load Package</h1>
+<p>Install the package <code>devtools</code> (with <code>install.packages(&quot;devtools&quot;)</code>) and run the following line of code</p>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1"></a>devtools<span class="op">::</span><span class="kw">install_github</span>(<span class="st">&quot;retodomax/cowfit&quot;</span>, <span class="dt">dependencies=</span><span class="ot">TRUE</span>)</span></code></pre></div>
+<p>Load the package with</p>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1"></a><span class="kw">library</span>(<span class="st">&quot;cowfit&quot;</span>)</span></code></pre></div>
+</div>
+<div id="general-procedure" class="section level1 unnumbered">
+<h1>General Procedure</h1>
+<div id="prepare-data-and-pedigree" class="section level2 unnumbered">
+<h2>Prepare Data and Pedigree</h2>
+<p>Your data has to be organized in two objects</p>
+<ol style="list-style-type: decimal">
+<li><strong>pedigree</strong> Store the pedigree in an object of class <code>pedigree</code> from package <code>pedigreemm</code>. Type <code>?pedigreemm::pedigree</code> for more information of how construct an object of class <code>pedigree</code>.</li>
+<li><strong>data table</strong> Store the observations together with predictor variables as columns in a <code>data.frame</code>. Make sure to define the desired data type for each column (numeric, factor, …).</li>
+</ol>
+</div>
+<div id="get-first-impression-of-your-data" class="section level2 unnumbered">
+<h2>Get First Impression of your Data</h2>
+<ul>
+<li>Think about model
+<ul>
+<li>Which variables might have a possible effect on the target variable?</li>
+<li>Should a predictor be considered as fixed or random?</li>
+<li>Do we have enoght data to fit all kinds of interactions?</li>
+</ul></li>
+<li>Try different models with <code>lme4</code>
+<ul>
+<li>Fitting a model is much faster with <code>lme4</code> compared to <code>cowfit</code>.</li>
+<li>A first impression of which predictors might be relevant can be obtained with using <code>lme4</code>.</li>
+<li>Note that not all models which can be fitted with <code>cowfit</code> are allowed with <code>lme4</code> (animal model with single observations).</li>
+</ul></li>
+</ul>
+</div>
+<div id="estimate-model" class="section level2 unnumbered">
+<h2>Estimate Model</h2>
+<ul>
+<li>One step approach
+<ul>
+<li>Fit full model and estimate variance components</li>
+<li>Best option for small data sets with not so many grouping factor levels (sire model)</li>
+</ul></li>
+<li>Two Step approach
+<ul>
+<li>First step: estimate variance components with a small subset of your data</li>
+<li>Second step: Fit entire data set using estimated variance components</li>
+<li>Best option for large data sets with many grouping factor levels (animal model)</li>
+</ul></li>
+</ul>
+</div>
+<div id="model-selection" class="section level2 unnumbered">
+<h2>Model Selection</h2>
+<ul>
+<li>Estimate different models using the one step or the two step approach</li>
+<li>Compare different models (<code>anova()</code>, <code>AIC()</code>, Cross validation, …)</li>
+<li>Choose best model</li>
+</ul>
+</div>
+<div id="predict-breeding-values" class="section level2 unnumbered">
+<h2>Predict Breeding Values</h2>
+<ul>
+<li>Use final model to predict breeding values</li>
+</ul>
+</div>
+</div>
+<div id="example-1-lmm-small-data-set-sire-model" class="section level1 unnumbered">
+<h1>Example 1: LMM, small data set, sire model</h1>
+<p>The data set <code>sim_milk</code> contains 8375 observed milk yields from 1675 animals. They are descendants from 38 sires for which we want to predict breeding values. Our goal is to select for animals which have a higher milk yield under high-protein feeding.</p>
+<p>We start fitting models of increasing complexity without considering the correlation of the random effects.</p>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1"></a>fit1 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire),</span>
+<span id="cb3-2"><a href="#cb3-2"></a>             <span class="dt">data =</span> sim_milk)</span>
+<span id="cb3-3"><a href="#cb3-3"></a>fit2 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire),</span>
+<span id="cb3-4"><a href="#cb3-4"></a>             <span class="dt">data =</span> sim_milk)</span>
+<span id="cb3-5"><a href="#cb3-5"></a>fit3 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb3-6"><a href="#cb3-6"></a>             <span class="dt">data =</span> sim_milk)</span>
+<span id="cb3-7"><a href="#cb3-7"></a>fit4 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(protein<span class="op">|</span>herd),</span>
+<span id="cb3-8"><a href="#cb3-8"></a>             <span class="dt">data =</span> sim_milk)</span>
+<span id="cb3-9"><a href="#cb3-9"></a>fit5 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(protein<span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb3-10"><a href="#cb3-10"></a>             <span class="dt">data =</span> sim_milk)</span></code></pre></div>
+<p>Models with (protein|sire) + (protein|herd) will end up being singular and are therefore not considered. Next we do hierarchical model comparison with <code>anova</code>.</p>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1"></a><span class="kw">anova</span>(fit1, fit2, fit3, fit4, fit5)</span></code></pre></div>
+<pre><code>Data: sim_milk
+Models:
+fit1: y ~ (1 | sire)
+fit2: y ~ protein + (1 | sire)
+fit3: y ~ protein + (1 | sire) + (1 | herd)
+fit4: y ~ protein + (1 | sire) + (protein | herd)
+fit5: y ~ protein + (protein | sire) + (1 | herd)
+     npar    AIC    BIC logLik deviance    Chisq Df Pr(&gt;Chisq)    
+fit1    3 118636 118657 -59315   118630                           
+fit2    4  78937  78965 -39465    78929 39701.01  1  &lt; 2.2e-16 ***
+fit3    5  75701  75736 -37845    75691  3238.39  1  &lt; 2.2e-16 ***
+fit4    7  74874  74924 -37430    74860   830.23  2  &lt; 2.2e-16 ***
+fit5    7  57698  57748 -28842    57684 17176.06  0  &lt; 2.2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>The additional parameters in the most complex model (fit5) seem to have a significant effect on the target variable. In the next step we refit the last two models and include the correlation structure due to the pedigree. We can fit the model with the one step approach because this is a rather small example.</p>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1"></a>fit6 &lt;-<span class="st"> </span><span class="kw">cowfit_lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(protein<span class="op">|</span>herd),</span>
+<span id="cb6-2"><a href="#cb6-2"></a>                    <span class="dt">data =</span> sim_milk, <span class="dt">pedigree =</span> <span class="kw">list</span>(<span class="dt">sire =</span> pedSires),</span>
+<span id="cb6-3"><a href="#cb6-3"></a>                    <span class="dt">cowfit_verbose =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb6-4"><a href="#cb6-4"></a></span>
+<span id="cb6-5"><a href="#cb6-5"></a>fit7 &lt;-<span class="st"> </span><span class="kw">cowfit_lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>protein <span class="op">+</span><span class="st"> </span>(protein<span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb6-6"><a href="#cb6-6"></a>                    <span class="dt">data =</span> sim_milk, <span class="dt">pedigree =</span> <span class="kw">list</span>(<span class="dt">sire =</span> pedSires),</span>
+<span id="cb6-7"><a href="#cb6-7"></a>                    <span class="dt">cowfit_verbose =</span> <span class="ot">FALSE</span>)</span>
+<span id="cb6-8"><a href="#cb6-8"></a><span class="kw">anova</span>(fit6, fit7)</span></code></pre></div>
+<pre><code>Data: sim_milk
+Models:
+fit6: y ~ protein + (1 | sire) + (protein | herd)
+fit7: y ~ protein + (protein | sire) + (1 | herd)
+     npar   AIC   BIC logLik deviance Chisq Df Pr(&gt;Chisq)    
+fit6    7 74877 74926 -37432    74863                        
+fit7    7 57702 57751 -28844    57688 17176  0  &lt; 2.2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Again, we observe that <code>fit6</code> is better also with considering the correlation structure in the random effects.</p>
+<p>Finally we use the function <code>ranef()</code> to extract the random effects of the sires (aka breeding values). Each sire will have two breeding values. The random intercept breeding value is defined as two times the deviation from the population mean of an average offspring at low protein level. The random slope breeding value is associated with the expected effect on higher protein levels</p>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1"></a>re &lt;-<span class="st"> </span><span class="kw">ranef</span>(fit7)</span>
+<span id="cb8-2"><a href="#cb8-2"></a>bv &lt;-<span class="st"> </span>re<span class="op">$</span>sire</span>
+<span id="cb8-3"><a href="#cb8-3"></a><span class="kw">plot</span>(<span class="dv">1</span>, <span class="dt">xlim =</span> <span class="kw">c</span>(<span class="dv">0</span>, <span class="dv">5</span>), <span class="dt">ylim =</span> <span class="kw">c</span>(<span class="op">-</span><span class="dv">150</span>, <span class="dv">150</span>),</span>
+<span id="cb8-4"><a href="#cb8-4"></a>     <span class="dt">xlab =</span> <span class="st">&quot;protein&quot;</span>, <span class="dt">ylab =</span> <span class="st">&quot;effect on milk yield&quot;</span>,</span>
+<span id="cb8-5"><a href="#cb8-5"></a>     <span class="dt">type =</span> <span class="st">&quot;n&quot;</span>)</span>
+<span id="cb8-6"><a href="#cb8-6"></a>z &lt;-<span class="st"> </span><span class="kw">apply</span>(bv, <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="kw">abline</span>(<span class="dt">a =</span> x[<span class="dv">1</span>], <span class="dt">b =</span> x[<span class="dv">2</span>]))</span>
+<span id="cb8-7"><a href="#cb8-7"></a>bv<span class="op">$</span>eff_prot5 &lt;-<span class="st"> </span>bv<span class="op">$</span><span class="st">`</span><span class="dt">(Intercept)</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span>bv<span class="op">$</span>protein<span class="op">*</span><span class="dv">5</span></span>
+<span id="cb8-8"><a href="#cb8-8"></a>ind &lt;-<span class="st"> </span><span class="kw">which</span>(bv<span class="op">$</span>eff_prot5 <span class="op">&gt;</span><span class="st"> </span><span class="dv">130</span>)</span>
+<span id="cb8-9"><a href="#cb8-9"></a><span class="kw">rownames</span>(bv[ind,])</span></code></pre></div>
+<pre><code>[1] &quot;321&quot; &quot;324&quot;</code></pre>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1"></a>z &lt;-<span class="st"> </span><span class="kw">apply</span>(bv[ind,], <span class="dv">1</span>, <span class="cf">function</span>(x) <span class="kw">abline</span>(<span class="dt">a =</span> x[<span class="dv">1</span>], <span class="dt">b =</span> x[<span class="dv">2</span>],</span>
+<span id="cb10-2"><a href="#cb10-2"></a>                                           <span class="dt">col =</span> <span class="st">&quot;red&quot;</span>))</span></code></pre></div>
+<p><img src="data:image/png;base64,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" width="80%" style="display: block; margin: auto auto auto 0;" /></p>
+<p>We should select the animal 321 and 324 (red lines) if we select animals which perform better with high protein feedstuff.</p>
+</div>
+<div id="example-2-lmm-large-data-set-animal-model" class="section level1 unnumbered">
+<h1>Example 2: LMM, large data set, animal model</h1>
+<p>Next, we consider problems where we want to fit an animal model with a larger pedigree. This implies a large number of random effects which makes the estimation computationally expensive. We use the two step approach in order to fit the model in reasonable time. The data set <code>sim_fat</code> and pedigree <code>pedCows</code> are still relatively small, however, the techniques we are using also apply to larger problems. As before, we start fitting the whole data set without considering the correlation of the random effects.</p>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1"></a>fit1 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>animal),</span>
+<span id="cb11-2"><a href="#cb11-2"></a>             <span class="dt">data =</span> sim_fat)</span>
+<span id="cb11-3"><a href="#cb11-3"></a>fit2 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>animal),</span>
+<span id="cb11-4"><a href="#cb11-4"></a>             <span class="dt">data =</span> sim_fat)</span>
+<span id="cb11-5"><a href="#cb11-5"></a>fit3 &lt;-<span class="st"> </span><span class="kw">lmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>animal) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb11-6"><a href="#cb11-6"></a>             <span class="dt">data =</span> sim_fat)</span>
+<span id="cb11-7"><a href="#cb11-7"></a><span class="kw">anova</span>(fit1, fit2, fit3)</span></code></pre></div>
+<pre><code>Data: sim_fat
+Models:
+fit1: y ~ (1 | animal)
+fit2: y ~ lact + (1 | animal)
+fit3: y ~ (1 | animal) + (1 | herd)
+     npar   AIC   BIC logLik deviance  Chisq Df Pr(&gt;Chisq)
+fit1    3 26613 26631 -13303    26607                     
+fit2    4 26615 26639 -13303    26607 0.1958  1     0.6581
+fit3    4 26615 26639 -13303    26607 0.0000  0     1.0000</code></pre>
+<p>We choose the first model and fit the model to a small subset of the data and pedigree.</p>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1"></a><span class="co">## Maybe use subPed() ??</span></span>
+<span id="cb13-2"><a href="#cb13-2"></a><span class="kw">library</span>(optiSel)</span>
+<span id="cb13-3"><a href="#cb13-3"></a>myp &lt;-<span class="st"> </span><span class="kw">subPed</span>(<span class="dt">Pedig =</span> <span class="kw">data.frame</span>(<span class="dt">ID =</span> pedCows<span class="op">@</span>label, <span class="dt">Sire =</span> pedCows<span class="op">@</span>sire, <span class="dt">Dam =</span> pedCows<span class="op">@</span>dam),</span>
+<span id="cb13-4"><a href="#cb13-4"></a>              <span class="dt">keep =</span> <span class="st">&quot;2000&quot;</span>, <span class="dt">prevGen =</span> <span class="dv">0</span>, <span class="dt">succGen =</span> <span class="dv">10</span>)</span>
+<span id="cb13-5"><a href="#cb13-5"></a><span class="co">## However we need less random effects and more observations (ideally)</span></span>
+<span id="cb13-6"><a href="#cb13-6"></a><span class="co">## How can we sample to have MANY observations and LESS random effects?</span></span>
+<span id="cb13-7"><a href="#cb13-7"></a></span>
+<span id="cb13-8"><a href="#cb13-8"></a><span class="co">## 2. Option</span></span>
+<span id="cb13-9"><a href="#cb13-9"></a><span class="co">## Use ANIMAL model</span></span>
+<span id="cb13-10"><a href="#cb13-10"></a><span class="co"># BUT: are variance components of animal model the same?</span></span>
+<span id="cb13-11"><a href="#cb13-11"></a><span class="co"># In my opinion variance components are 0.25 times variance components of animal model</span></span>
+<span id="cb13-12"><a href="#cb13-12"></a><span class="co"># (effect is only halfe the effect in animal model)</span></span></code></pre></div>
+</div>
+<div id="example-3-glmm-small-data-set-sire-model" class="section level1 unnumbered">
+<h1>Example 3: GLMM, small data set, sire model</h1>
+<p>Let’s try an example where our target variable is not continuous but a binary. Assume we want to have less multiple birth events in a population of animals because multiple births are associated with complications. We do not care about the exact number of offspring therefore we just model a binary trait, multiple birth true or false. We also expect an influence of predictor variable <code>lact</code> on the probability for multiple birth. The data is stored in data frame <code>sim_twin</code> and <code>pedSires</code> is the associated pedigree of the sires.</p>
+<p>We start by fitting models with increasing complexity with the function <code>glmer()</code></p>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1"></a>fit1 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire),</span>
+<span id="cb14-2"><a href="#cb14-2"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-3"><a href="#cb14-3"></a>fit2 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire),</span>
+<span id="cb14-4"><a href="#cb14-4"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-5"><a href="#cb14-5"></a>fit3 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb14-6"><a href="#cb14-6"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-7"><a href="#cb14-7"></a>fit4 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(lact<span class="op">|</span>herd),</span>
+<span id="cb14-8"><a href="#cb14-8"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-9"><a href="#cb14-9"></a>fit5 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(lact<span class="op">|</span>sire) <span class="op">+</span><span class="st"> </span>(<span class="dv">1</span><span class="op">|</span>herd),</span>
+<span id="cb14-10"><a href="#cb14-10"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-11"><a href="#cb14-11"></a>fit6 &lt;-<span class="st"> </span><span class="kw">glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(lact<span class="op">|</span>sire),</span>
+<span id="cb14-12"><a href="#cb14-12"></a>              <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span>)</span>
+<span id="cb14-13"><a href="#cb14-13"></a><span class="kw">anova</span>(fit1, fit2, fit3, fit4, fit5, fit6)</span></code></pre></div>
+<pre><code>Data: sim_twin
+Models:
+fit1: y ~ (1 | sire)
+fit2: y ~ lact + (1 | sire)
+fit3: y ~ lact + (1 | sire) + (1 | herd)
+fit6: y ~ lact + (lact | sire)
+fit4: y ~ lact + (1 | sire) + (lact | herd)
+fit5: y ~ lact + (lact | sire) + (1 | herd)
+     npar    AIC    BIC  logLik deviance  Chisq Df Pr(&gt;Chisq)    
+fit1    2 5918.2 5932.2 -2957.1   5914.2                         
+fit2    3 5580.6 5601.7 -2787.3   5574.6 339.61  1     &lt;2e-16 ***
+fit3    4 5582.6 5610.7 -2787.3   5574.6   0.00  1          1    
+fit6    5 5010.1 5045.2 -2500.0   5000.1 574.49  1     &lt;2e-16 ***
+fit4    6 5486.2 5528.4 -2737.1   5474.2   0.00  1          1    
+fit5    6 5012.1 5054.3 -2500.0   5000.1 474.13  0     &lt;2e-16 ***
+---
+Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1</code></pre>
+<p>Model 5 and 6 are very close according to <code>AIC</code>.</p>
+<div class="sourceCode" id="cb16"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1"></a><span class="kw">anova</span>(fit6, fit5)</span></code></pre></div>
+<pre><code>Data: sim_twin
+Models:
+fit6: y ~ lact + (lact | sire)
+fit5: y ~ lact + (lact | sire) + (1 | herd)
+     npar    AIC    BIC logLik deviance Chisq Df Pr(&gt;Chisq)
+fit6    5 5010.1 5045.2  -2500   5000.1                    
+fit5    6 5012.1 5054.3  -2500   5000.1     0  1          1</code></pre>
+<p>The additional parameters of model 5 do not have a significant effect, which is why we prefer the simpler model. Fitting this model with <code>cowfit_glmer()</code> already takes some seconds but is still possible without prespecified variance components.</p>
+<div class="sourceCode" id="cb18"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb18-1"><a href="#cb18-1"></a><span class="kw">system.time</span>(fit7 &lt;-<span class="st"> </span><span class="kw">cowfit_glmer</span>(<span class="dt">formula =</span> y <span class="op">~</span><span class="st"> </span>lact <span class="op">+</span><span class="st"> </span>(lact<span class="op">|</span>sire)</span>
+<span id="cb18-2"><a href="#cb18-2"></a>                                 , <span class="dt">data =</span> sim_twin, <span class="dt">family =</span> <span class="st">&quot;binomial&quot;</span></span>
+<span id="cb18-3"><a href="#cb18-3"></a>                                 , <span class="dt">pedigree =</span> <span class="kw">list</span>(<span class="dt">sire =</span> pedSires)</span>
+<span id="cb18-4"><a href="#cb18-4"></a>                                 , <span class="dt">cowfit_verbose =</span> <span class="ot">FALSE</span>))</span></code></pre></div>
+<pre><code>   user  system elapsed 
+ 68.759   0.096  68.972 </code></pre>
+<p>Our goal is to exclude all sires which inherit a breeding value associated with probability &gt; 0.5 for twins at third lactation.</p>
+<div class="sourceCode" id="cb20"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb20-1"><a href="#cb20-1"></a>re &lt;-<span class="st"> </span><span class="kw">ranef</span>(fit7)</span>
+<span id="cb20-2"><a href="#cb20-2"></a>bv &lt;-<span class="st"> </span>re<span class="op">$</span>sire</span>
+<span id="cb20-3"><a href="#cb20-3"></a>bv<span class="op">$</span>sire &lt;-<span class="st"> </span><span class="kw">rownames</span>(bv)</span>
+<span id="cb20-4"><a href="#cb20-4"></a>betas &lt;-<span class="st"> </span><span class="kw">fixef</span>(fit7)</span>
+<span id="cb20-5"><a href="#cb20-5"></a>bv<span class="op">$</span>lin_pred &lt;-<span class="st"> </span>betas[<span class="dv">1</span>] <span class="op">+</span><span class="st"> </span>betas[<span class="dv">2</span>]<span class="op">*</span><span class="dv">3</span> <span class="op">+</span><span class="st"> </span>bv<span class="op">$</span><span class="st">`</span><span class="dt">(Intercept)</span><span class="st">`</span> <span class="op">+</span><span class="st"> </span>bv<span class="op">$</span>lact<span class="op">*</span><span class="dv">3</span></span>
+<span id="cb20-6"><a href="#cb20-6"></a>bv<span class="op">$</span>p &lt;-<span class="st"> </span><span class="kw">inv_logit</span>(bv<span class="op">$</span>lin_pred)</span>
+<span id="cb20-7"><a href="#cb20-7"></a>bv<span class="op">$</span>sire[<span class="kw">which</span>(bv<span class="op">$</span>p <span class="op">&gt;</span><span class="st"> </span><span class="fl">0.5</span>)]</span></code></pre></div>
+<pre><code> [1] &quot;2&quot;   &quot;4&quot;   &quot;320&quot; &quot;323&quot; &quot;324&quot; &quot;325&quot; &quot;334&quot; &quot;336&quot; &quot;338&quot; &quot;339&quot; &quot;342&quot; &quot;345&quot;
+[13] &quot;348&quot; &quot;349&quot;</code></pre>
+<p>Note that we have to calculate the linear predictor manually. Using <code>predict()</code> will be wrong because it does use the random effects on a transformed scale.</p>
+</div>
+<div id="example-4-glmm-large-data-set-animal-model" class="section level1 unnumbered">
+<h1>Example 4: GLMM, large data set, animal model</h1>
+<!-- - Think about model (fixed effects, random effects) -->
+<!-- - Fit small subpopulation with cowfit_glmer() -->
+<!-- - Insert variance components in order of cowfit_var_comp() -->
+<!-- - cowfit_glmer() on full population with given var_comp -->
+<!--     - Too slow? Trhy with nAGQ = 0 -->
+<!--     - Only approximate beta -->
+<!--     - Much faster -->
+<!-- - Check residuals plot -->
+<!-- - improve model -->
+<!-- - Cross validation of Breeding values -->
+<!-- - heritability -->
+</div>
+
+
+
+<!-- code folding -->
+
+
+<!-- dynamically load mathjax for compatibility with self-contained -->
+<script>
+  (function () {
+    var script = document.createElement("script");
+    script.type = "text/javascript";
+    script.src  = "https://mathjax.rstudio.com/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML";
+    document.getElementsByTagName("head")[0].appendChild(script);
+  })();
+</script>
+
+</body>
+</html>

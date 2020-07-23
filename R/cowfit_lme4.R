@@ -15,28 +15,28 @@ NULL
 #'     which was used to transform the
 #'     model matrix \eqn{Z^T} and can be used to backtransform the random effects.
 #' @seealso \code{\link[cowfit:glmercowfit-class]{glmercowfit}}, \code{\link[cowfit:lmercowfit-class]{lmercowfit}}
-#' @examples showClass("cowfit")
+#' @examples showClass("lme4cowfit")
 #' @export
-setClass("cowfit", representation = list(TAt = "dtCMatrix"),
+setClass("lme4cowfit", representation = list(TAt = "dtCMatrix"),
          contains = "merMod")
 
 #' @title Fitted Pedigree-based LMM
 #' @description A mixed effects model fit by \code{\link{cowfit_lmer}}.
-#'     The class inherits from class \code{\link[cowfit:cowfit-class]{cowfit}}.
-#' @seealso \code{\link[cowfit:cowfit-class]{cowfit}}, \code{\link[cowfit:glmercowfit-class]{glmercowfit}}
+#'     The class inherits from class \code{\link[cowfit:lme4cowfit-class]{lme4cowfit}}.
+#' @seealso \code{\link[cowfit:lme4cowfit-class]{lme4cowfit}}, \code{\link[cowfit:glmercowfit-class]{glmercowfit}}
 #' @examples showClass("lmercowfit")
 #' @export
 setClass("lmercowfit", representation = list(resp="lmerResp"),
-         contains = "cowfit")
+         contains = "lme4cowfit")
 
 #' @title Fitted Pedigree-based GLMM
 #' @description A mixed effects model fit by \code{\link{cowfit_glmer}}.
-#'     The class inherits from class \code{\link[cowfit:cowfit-class]{cowfit}}.
-#' @seealso \code{\link[cowfit:cowfit-class]{cowfit}}, \code{\link[cowfit:lmercowfit-class]{lmercowfit}}
+#'     The class inherits from class \code{\link[cowfit:lme4cowfit-class]{lme4cowfit}}.
+#' @seealso \code{\link[cowfit:lme4cowfit-class]{lme4cowfit}}, \code{\link[cowfit:lmercowfit-class]{lmercowfit}}
 #' @examples showClass("lmercowfit")
 #' @export
 setClass("glmercowfit", representation = list(resp="glmResp"),
-         contains = "cowfit")
+         contains = "lme4cowfit")
 
 
 # Logit function ----------------------------------------------------------
@@ -210,6 +210,7 @@ var_to_theta <- function(var_comp, cnms){
 #'     \code{\link[pedigreemm:pedigree-class]{pedigree}} objects.
 #'     The names must correspond to the names of grouping factors
 #'     for random-effects terms in the formula argument.
+#' @param include_TAt_list Logical. Should also the term-wise separated TAt (TAt_list) be returend?
 #' @return Transformation factor
 #' @author Reto Zihlmann
 #' @seealso \code{\link[lme4:lFormula]{lFormula}}, \code{\link[pedigreemm:pedigree-class]{pedigree}}
@@ -218,7 +219,7 @@ var_to_theta <- function(var_comp, cnms){
 #'                  data = sim_milk)
 #' get_TAt(lmod = lmod, pedigree = list(sire = pedSires))
 #' @export
-get_TAt <- function(lmod, pedigree) {
+get_TAt <- function(lmod, pedigree, include_TAt_list = FALSE) {
   pnms <- names(pedigree)        # Names of pedigree factors
   fl <- lmod$reTrms$flist         # Factor list
   asgn <- attr(fl, "assign")     # Which factor corresponds to which (reordered) term
@@ -233,13 +234,17 @@ get_TAt <- function(lmod, pedigree) {
       Zt_i <- lmod$reTrms$Ztlist[[i]]          # get Zt matrix
       fac_levels <- rownames(Zt_i)[seq(1, length(rownames(Zt_i)), p_i)]  # skip some names (Replicated p_i times)
       Lt_Ai <- relfactor(pedigree[[fac_name]], fac_levels)
-      TAt_list[[i]] <- kronecker(Lt_Ai, diag(p_i))
+      TAt_list[[i]] <- as(kronecker(Lt_Ai, diag(p_i)), "dtCMatrix")
     } else {
-      TAt_list[[i]] <- diag(p_i*l_i)
+      TAt_list[[i]] <- as(diag(p_i*l_i), "dtCMatrix")
     }
   }
-  TAt <- Matrix::bdiag(TAt_list)
-  as(TAt, "dtCMatrix")
+  TAt <- as(Matrix::bdiag(TAt_list), "dtCMatrix")
+  if(include_TAt_list){
+    list(TAt = TAt, TAt_list = TAt_list)
+  } else {
+    TAt
+  }
 }
 
 
@@ -324,8 +329,6 @@ Bolker_exact_var_comp <- function(devfun, var_comp, lmod, mcout = quote(Bolker()
 #' @author Reto Zihlmann
 #' @seealso \code{\link[lme4:lmer]{lmer}}, \code{\link[pedigreemm:pedigreemm]{pedigreemm}}
 #' @examples
-#' cowfit_var_comp(formula = y ~ (1|herd) + (protein|sire),
-#'                 data = sim_milk)
 #' (myvar <- cowfit_var_comp(formula = y ~ (1|herd) + (protein|sire),
 #'                           data = sim_milk))
 #' myvar$vcov <- c(500, 400, 300, -200, 50)
@@ -437,7 +440,7 @@ cowfit_lmer <- function(formula, data = NULL, pedigree = list(),
 # ranef() -----------------------------------------------------------------
 
 #' @export
-setMethod("ranef", signature(object = "cowfit"),
+setMethod("ranef", signature(object = "lme4cowfit"),
           function(object, condVar = TRUE, drop = FALSE,
                    whichel = names(ans), postVar = FALSE, pedigree = TRUE,...)
           {
@@ -532,7 +535,7 @@ setMethod("ranef", signature(object = "cowfit"),
 
 #' @title Fit GLMMs in genetic evaluation
 #' @description Fit GLMMs with random effect correlated according to pedigree.
-#' @param formula Model formula. As in \code{\link[lme4:glmer]{glmer}}.
+#' @param formula As in \code{\link[lme4:glmer]{glmer}}.
 #' @param data As in \code{\link[lme4:glmer]{glmer}}.
 #' @param family As in \code{\link[lme4:glmer]{glmer}}.
 #' @param pedigree a named list of
@@ -717,7 +720,9 @@ cowfit_glmer <- function(formula, data = NULL, family = gaussian,
     if (nAGQ > 0L) {
       devfun <- updateGlmerDevfun(devfun, glmod$reTrms, nAGQ = nAGQ)
       if (control$nAGQ0initStep) {
-        start <- lme4:::updateStart(start, theta = opt$par)
+        ### workarround for `start <- lme4:::updateStart(start, theta = opt$par)`
+        updateStart_cowfit <- utils::getFromNamespace("updateStart", "lme4")
+        start <- updateStart_cowfit(start, theta = opt$par)
       }
       if (devFunOnly)
         return(devfun)
@@ -1027,10 +1032,11 @@ sim_glmer <- function(formula = y ~ (1|herd) + (lact|id), data = milk,
   }
   rsample <- switch (family$family,
                      binomial = function(n, mu){rbinom(n = n, size = 1, prob = mu)},
-                     poisson = function(n, mu){rpois(n = n, lambda = mu)},
-                     Gamma = function(n, mu){rgamma(n = n, shape = mu, rate = 1)})
+                     gaussian = function(n, mu){rnorm(n = n, mean = mu, sd = 1)},
+                     Gamma = function(n, mu){rgamma(n = n, shape = mu, rate = 1)},
+                     poisson = function(n, mu){rpois(n = n, lambda = mu)})
   if (is.null(rsample))
-  {stop("sim_glmer() currently only supports 'binomial', 'poisson' and 'Gamma' for family argument")}
+  {stop("sim_glmer() currently only supports 'binomial', 'gaussian', 'Gamma' and 'poisson' for family argument")}
   data$mu <- family$linkinv(data$lin_pred)
   data$y <- rsample(n = nrow(data), mu = data$mu)
 
@@ -1088,7 +1094,7 @@ test_cowfit_glmer <- function(formula = ~lact + (1|herd) + (lact|sire), data = m
     var_comp <- NULL
   }
   ti <- system.time({
-    fit <- cowfit_glmer(update(formula, y ~ .), data = mysim$data, pedigree = pedigree, family = family,
+    fit <- cowfit_glmer(update(formula, y ~ .), data = mysim$data, family = family, pedigree = pedigree,
                         var_comp = var_comp, cowfit_verbose = TRUE, ...)
   })
   if(!return_all){

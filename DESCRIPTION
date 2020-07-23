@@ -15,4 +15,5 @@ Encoding: UTF-8
 LazyData: true
 URL: https://github.com/retodomax/pedigreemm
 Depends: R(>= 3.0.0), lme4 (>= 1.0), Matrix (>= 1.0), methods, pedigreemm (>= 0.3-3)
+Imports: brms (>= 2.13.3)
 RoxygenNote: 7.1.1

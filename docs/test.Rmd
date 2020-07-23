@@ -3,9 +3,9 @@ project: cowfit    #####################################################
 title:   Getting Started with Cowfit
 author:  Reto Zihlmann
 date:    2020-07-06
-output:
-  BiocStyle::html_document:
-    toc_float: true
+output: 
+  html_vignette: 
+    toc: yes
 ---
 
 ```{r, setup, include=FALSE}
