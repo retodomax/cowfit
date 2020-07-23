@@ -10,7 +10,7 @@ This package extends the functionality of the package `pedigreemm` and contains 
 Also, the same models can be fitted in the **Bayesian framework**. The implementation is based on the package `brms` with some adaptations
 
 1. Uses the same syntax for defining correlation between animals as `pedigreemm` (i.e. with argument `pedigree = list(...)`).
-2. Avoids the calculation of the nummerator relationship matrix $A$ (Covariance matrix between random effects).
+2. Avoids the calculation of the nummerator relationship matrix A (Covariance matrix between random effects).
 3. Allows to prespecify the variance components for faster estimation of random effects.
 
 ## Installation
