@@ -154,12 +154,16 @@ cowfit_brm <- function(formula, data, family = gaussian(),
     mylabs <- unique(data[[name]])
     t(relfactor(ped = pedigree[[name]], labs = mylabs))
   }
-  all_relfactor <- lapply(names(pedigree), get_relfactor, pedigree = pedigree, data = data)
-  names(all_relfactor) <- paste0(names(pedigree), "_L")
-  sub_arg <- as.list(parse(text = paste0("gr(", names(pedigree), ", cov = ", names(all_relfactor), ")")))
-  names(sub_arg) <- names(pedigree)
-  formula <- do.call("substitute", list(formula, sub_arg))
-  data2 <- c(data2, all_relfactor)
+  if (length(pedigree) > 0){
+    all_relfactor <- lapply(names(pedigree), get_relfactor, pedigree = pedigree, data = data)
+    names(all_relfactor) <- paste0(names(pedigree), "_L")
+    sub_arg <- as.list(parse(text = paste0("gr(", names(pedigree), ", cov = ", names(all_relfactor), ")")))
+    names(sub_arg) <- names(pedigree)
+    formula <- do.call("substitute", list(formula, sub_arg))
+    data2 <- c(data2, all_relfactor)
+  } else {
+    data2 <- NULL
+  }
   mc[[1]] <- quote(adapted_brm)
   mc$pedigree <- NULL
   mc$formula <- formula
